@@ -8,8 +8,8 @@ Time spent: 40 hours spent in total
 
 The following **required** functionality is completed:
 
-- [ ] Style the login page to look like the real Instagram login page.
-- [ ] User can sign up to create a new account using Parse authentication
+- [X] Style the login page to look like the real Instagram login page.
+- [X] User can sign up to create a new account using Parse authentication
 - [X] User can log in and log out of his or her account
 - [X] The current signed in user is persisted across app restarts
 - [ ] User can take a photo, add a caption, and post it to "Instagram"
@@ -19,7 +19,7 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 
-- [ ] Style the feed to look like the real Instagram feed.
+- [X] Style the feed to look like the real Instagram feed.
 - [X] User should switch between different tabs - viewing all posts (feed view), capture (camera and photo gallery view) and profile tabs (posts made) using a Bottom Navigation View.
 - [ ] User can load more posts once he or she reaches the bottom of the feed using infinite scrolling.
 - [ ] Show the username and creation time for each post
@@ -32,7 +32,6 @@ The following **optional** features are implemented:
 - [ ] User can like a post and see number of likes for each post in the post details screen.
 - [ ] Create a custom Camera View on your phone.
 - [ ] Run your app on your phone and use the camera to take the photo
-
 
 The following **additional** features are implemented:
 
