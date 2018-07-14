@@ -6,13 +6,20 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-// name "Post" should be exact same as on parse dashboard
+/* @brief Post represents an individual Parse post object
+* @note name "Post" should be exact same as on parse dashboard
+*/
 @ParseClassName("Post")
 public class Post extends ParseObject {
 
     private static final String KEY_DESCRIPTION = "description";
     private static final String KEY_IMAGE       = "image";
     private static final String KEY_USER        = "user";
+    private static final String TIME_STAMP      = "createdAt";
+
+    public String getTime() {
+        return getString(TIME_STAMP);
+    }
 
     public ParseFile getMedia() { return getParseFile("media"); }
     public void setMedia(ParseFile parseFile) { put("media", parseFile); }
@@ -36,7 +43,6 @@ public class Post extends ParseObject {
     public ParseUser getUser() {
         return getParseUser(KEY_USER);
     }
-
     public void setUser(ParseUser user) {
         put(KEY_USER, user);
     }

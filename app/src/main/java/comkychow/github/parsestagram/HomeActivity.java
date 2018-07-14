@@ -7,34 +7,54 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.content.FileProvider;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import comkychow.github.parsestagram.model.Post;
 
+/* @brief HomeActivity deals with the main logic and contains a menu with
+* a recyclerView of posts, a new post and camera
+ */
 public class HomeActivity extends AppCompatActivity {
 
     public final String APP_TAG = "MyCustomApp";
     public final static int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1034;
+    PostAdapter postAdapter;
+    ArrayList<Post> posts;
+    RecyclerView rvPosts;
     File photoFile;
+
+    @BindView(R.id.ivPreview) ImageView ivPreview;
     @BindView(R.id.camera_btn) Button cameraButton;
     @BindView(R.id.post_btn) Button postButton;
+    @BindView(R.id.tvNewCaption) EditText tvNewCaption;
+    @BindView(R.id.postToolbar) View postToolbar;
+    private SwipeRefreshLayout swipeContainer;
+    @BindView(R.id.bottom_navigation) BottomNavigationView bottomNavigationView;
 
     // custom action bar
     @Override
@@ -43,12 +63,10 @@ public class HomeActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    // handle button activities
+    // Logout logic
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.logout_btn) {
+        if (item.getItemId() == R.id.logout_btn) {
             ParseUser.logOut();
             final Intent logoutIntent = new Intent(HomeActivity.this, MainActivity.class);
             startActivity(logoutIntent);
@@ -61,6 +79,73 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
+        postToolbar.setVisibility(View.GONE);
+        ivPreview.setVisibility(View.GONE);
+
+        // TIMELINE FUNCTIONALITY
+        rvPosts= (RecyclerView) findViewById(R.id.rvPost);
+        // initialize arrayList (data source)
+        posts = new ArrayList<>();
+        // construct adapter from datasource
+        postAdapter = new PostAdapter(posts);
+        // RecyclerView setup (Layout Manager, user Adapter)
+        rvPosts.setLayoutManager(new LinearLayoutManager(this));
+        // set adapter
+        rvPosts.setAdapter(postAdapter);
+
+        // TIMELINE FUNCTIONALITY - similar to populateTimeline
+        final Post.Query postsQuery = new Post.Query();
+        postsQuery.getTop().withUser().orderByDescending("createdAt");
+        postsQuery.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> objects, ParseException e) {
+                if (e == null) {
+                    for (int i = 0; i < objects.size(); i++) {
+                        Post post = objects.get(i);
+                        posts.add(post);
+                        postAdapter.notifyItemInserted(posts.size() - 1);
+                    }
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        // NEW POST FUNCTIONALITY - display camera / post buttons
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                ivPreview.setVisibility(View.GONE);
+                switch (item.getItemId()) {
+                    default:
+                    case R.id.home_btn:
+                        rvPosts.setVisibility(View.VISIBLE);
+                        postToolbar.setVisibility(View.GONE);
+                        return true;
+                    case R.id.new_post_btn:
+                        rvPosts.setVisibility(View.GONE);
+                        postToolbar.setVisibility(View.VISIBLE);
+                        return true;
+                    case R.id.user_btn:
+                        rvPosts.setVisibility(View.GONE);
+                        postToolbar.setVisibility(View.GONE);
+                        return true;
+                }
+            }
+        });
+
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                fetchTimelineAsync();
+                swipeContainer.setRefreshing(false);
+            }
+        });
 
         // CAMERA FUNCTIONALITY
         cameraButton.setOnClickListener(new View.OnClickListener() {
@@ -82,14 +167,16 @@ public class HomeActivity extends AppCompatActivity {
         postButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String description = "test description"; // TODO add text box input
+                final String description = tvNewCaption.getText().toString();
                 final ParseUser user = ParseUser.getCurrentUser();
                 final ParseFile parseFile = new ParseFile(photoFile);
                 createPost(description, parseFile, user);
             }
         });
-    }
 
+        // DETAIL FUNCTIONALITY
+
+    }
     private void createPost(String  description, ParseFile imageFile, ParseUser user) {
         final Post newPost = new Post();
         newPost.setDescription(description);
@@ -101,30 +188,16 @@ public class HomeActivity extends AppCompatActivity {
             public void done(ParseException e) {
                 if (e == null) {
                     Toast.makeText(HomeActivity.this, "Post successfully created.", Toast.LENGTH_SHORT).show();
+                    posts.add(newPost);
+                    postAdapter.notifyItemInserted(posts.size() - 1);
+                    ivPreview.setVisibility(View.GONE);
                     Log.d("HomeActivity", "Create post success!");
                 } else { e.printStackTrace(); }
             }
         });
     }
 
-    // Returns the File for a photo stored on disk given the fileName
-    public File getPhotoFileUri(String fileName) {
-
-        // Get safe storage directory for photos
-        // Use `getExternalFilesDir` on Context to access package-specific directories.
-        // need to request external read/write runtime permissions.
-        File mediaStorageDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()){
-            Log.d(APP_TAG, "failed to create directory");
-        }
-
-        // Return the file target for the photo based on filename
-        File file = new File(mediaStorageDir.getPath() + File.separator + fileName);
-        return file;
-    }
-
+    // pass path to post activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -133,11 +206,35 @@ public class HomeActivity extends AppCompatActivity {
                 Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
                 // RESIZE BITMAP, see section below
                 // Load the taken image into a preview
-                ImageView ivPreview = (ImageView) findViewById(R.id.ivPreview);
                 ivPreview.setImageBitmap(takenImage);
+                ivPreview.setVisibility(View.VISIBLE);
             } else { // Result was a failure
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void fetchTimelineAsync() {
+        // Send the network request to fetch the updated data
+        // `client` here is an instance of Android Async HTTP
+        // getHomeTimeline is an example endpoint.
+        postAdapter.clear();
+        final Post.Query postsQuery = new Post.Query();
+        postsQuery.getTop().withUser().orderByDescending("createdAt");
+        postsQuery.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> objects, ParseException e) {
+                if (e == null) {
+                    for (int i = 0; i < objects.size(); i++) {
+                        Post post = objects.get(i);
+                        posts.add(post);
+                        postAdapter.notifyItemInserted(posts.size() - 1);
+
+                    }
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

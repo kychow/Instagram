@@ -6,15 +6,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context=".MainActivity">
+    tools:context=".SignupActivity">
+
+    <shape xmlns:android="http://schemas.android.com/apk/res/android">
+        <gradient
+            android:startColor="#4568DC"
+            android:endColor="#B06AB3"
+            android:angle="135"/>
+    </shape>
+
 
     <EditText
-        android:id="@+id/username_et"
+        android:id="@+id/signup_username_et"
         android:layout_width="284dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="182dp"
+        android:layout_centerInParent="true"
         android:hint="Username"
         android:textColor="@color/white"
         android:textColorHint="@color/white"
@@ -23,10 +29,12 @@
         tools:layout_editor_absoluteY="72dp" />
 
     <EditText
-        android:id="@+id/password_et"
+        android:id="@+id/signup_password_et"
         android:layout_width="284dp"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="172dp"
         android:hint="Password"
         android:inputType="textPassword"
         android:textColor="@color/white"
@@ -35,30 +43,30 @@
         tools:layout_editor_absoluteX="50dp"
         tools:layout_editor_absoluteY="120dp" />
 
-    <Button
-        android:id="@+id/sign_up_btn"
-        style="@style/Widget.AppCompat.Button.Colored"
+    <EditText
+        android:id="@+id/signup_email_et"
         android:layout_width="284dp"
-        android:layout_height="32dp"
-        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="138dp"
-        android:background="#20FFFFFF"
-        android:text="Sign Up"
+        android:layout_marginTop="172dp"
+        android:hint="Email"
         android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textSize="14sp"
         tools:layout_editor_absoluteX="50dp"
-        tools:layout_editor_absoluteY="169dp" />
+        tools:layout_editor_absoluteY="120dp" />
 
     <Button
-        android:id="@+id/login_btn"
+        android:id="@+id/signup_sign_up_btn"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="284dp"
         android:layout_height="32dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="193dp"
+        android:layout_marginBottom="117dp"
         android:background="#20FFFFFF"
-        android:text="Login"
+        android:text="Sign Up"
         android:textColor="@color/white"
         tools:layout_editor_absoluteX="50dp"
         tools:layout_editor_absoluteY="169dp" />
@@ -71,4 +79,5 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="102dp"
         app:srcCompat="@drawable/nux_dayone_landing_logo" />
+
 </RelativeLayout>

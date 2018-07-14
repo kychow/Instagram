@@ -20,12 +20,14 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.username_et) EditText usernameInput;
     @BindView(R.id.password_et) EditText passwordInput;
     @BindView(R.id.login_btn) Button loginBtn;
+    @BindView(R.id.sign_up_btn) Button signUpBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        getSupportActionBar().hide();
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
@@ -41,9 +43,22 @@ public class MainActivity extends AppCompatActivity {
                 login(username, password);
             }
         });
+
+
+        signUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent signupIntent = new Intent(MainActivity.this, SignupActivity.class);
+                startActivity(signupIntent);
+            }
+        });
     }
 
     private void login(String username, String password) {
+        // check if user is log
+        if (ParseUser.getCurrentUser() != null) {
+            ParseUser.logOut();
+        }
         ParseUser.logInInBackground(username, password, new LogInCallback() {
             @Override
             public void done(ParseUser user, ParseException e) {

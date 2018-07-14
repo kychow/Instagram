@@ -7,29 +7,78 @@
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
 
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/constraintLayout"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:menu="@menu/menu_bottom_navigation" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeContainer"
+        android:layout_above="@id/constraintLayout"
+        android:layout_below="@+id/postToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvPost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@+id/postToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentBottom="true" >
+        android:layout_above="@+id/constraintLayout"
+        android:layout_alignParentStart="true">
 
         <Button
             android:id="@+id/camera_btn"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Take Photo" />
+            android:text="Take photo" />
 
         <Button
             android:id="@+id/post_btn"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Post" />
+
+        <EditText
+            android:id="@+id/tvNewCaption"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:hint="Caption"
+            />
     </android.support.v7.widget.Toolbar>
 
     <ImageView
         android:id="@+id/ivPreview"
         android:layout_width="wrap_content"
         android:paddingBottom="?attr/actionBarSize"
+        android:layout_above="@id/postToolbar"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true" />
+
 </RelativeLayout>
